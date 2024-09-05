@@ -1,0 +1,16 @@
+<%- include('partials/header') %>
+
+<div class="container mt-5">
+  <h1 class="text-center">User Profile</h1>
+  
+  <!-- User Information -->
+  <div class="card mx-auto" style="max-width: 500px;">
+      <div class="card-body">
+          <h5 class="card-title"><%= users.name %></h5>
+          <p class="card-text"><strong>Email:</strong> <%= users.email %></p>
+          <p class="card-text"><strong>Joined:</strong> <%= new Date(users.createdAt).toLocaleDateString() %></p>
+      </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
