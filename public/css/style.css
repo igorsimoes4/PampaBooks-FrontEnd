@@ -1,0 +1,59 @@
+body {
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-color: #f8f9fa;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.card {
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+footer {
+  bottom: 0;
+  width: 100%;
+}
+
+/* Estilos adicionais para o header */
+.navbar {
+  background-color: #f8f9fa;
+}
+
+.navbar-nav .nav-link {
+  font-weight: bold;
+}
+
+.navbar-brand img {
+  max-height: 50px;
+}
+
+.navbar .btn-outline-secondary,
+.navbar .btn-outline-primary {
+  display: flex;
+  align-items: center;
+}
+
+.navbar .btn-outline-primary .badge {
+  font-size: 0.75rem;
+  margin-left: 5px;
+}
+
+.navbar .btn-outline-primary .bi-cart {
+  margin-right: 5px;
+}
+
+.navbar .btn-outline-secondary .bi-person {
+  margin-right: 5px;
+}
+
+.book-cover {/* Largura desejada */
+  height: 250px; /* Ajusta a imagem para cobrir o espaço sem distorção */
+  border-radius: 5px; /* Opcional: dá bordas arredondadas para a imagem */
+}
+

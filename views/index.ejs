@@ -1,8 +1,32 @@
 <%- include('partials/header') %>
 
-<div class="container">
-  <h1>Welcome to PampaBooks</h1>
-  <p>Your online bookstore</p>
-</div>
+<main class="container mt-5 mb-5">
+  <h2 class="mb-4">Livros em Destaque</h2>
+  <div class="row">
+    <% books.forEach(function(book) { %>
+    <div class="col-md-3">
+      <div class="card mb-4 shadow-sm">
+        <img
+          src="<%= book.image %>"
+          class="card-img-top book-cover"
+          alt="Imagem de <%= book.title %>"
+        />
+        <div class="card-body">
+          <h5 class="card-title"><%= book.title %></h5>
+          <p class="card-text"><%= book.description %></p>
+          <p class="text-muted">Autor: <%= book.author %></p>
+          <p class="text-success">R$ <%= book.price %></p>
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="btn-group">
+              <a href="/books/<%= book.id %>" class="btn btn-sm btn-outline-primary">Detalhes</a>
+              <button type="button" class="btn btn-sm btn-success">Comprar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <% }); %>
+  </div>
+</main>
 
 <%- include('partials/footer') %>
