@@ -79,6 +79,10 @@ exports.renderHomePage = async (req, res) => {
     res.render('index', { books });
 };
 
+exports.renderContactPage = async (req, res) => {
+  res.render('contact', { title: 'Contato' });
+};
+
 
 exports.renderUserPage = async (req, res) => {
     try {
@@ -96,8 +100,6 @@ exports.renderLoginPage = async (req, res) => {
 
 exports.renderAuthLoginPage = async (req, res) => {
     try {
-        let {email, password} = req.body;
-
         const response = await axios.post('http://127.0.0.1:5000/api/login', req.body);
         const token = response.data.token;
         res.set('Authorization', `Bearer ${token}`);

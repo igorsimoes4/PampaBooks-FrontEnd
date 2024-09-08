@@ -75,3 +75,8 @@ footer {
   border-radius: 5px; /* Opcional: dá bordas arredondadas para a imagem */
 }
 
+
+span {
+  text-transform: uppercase;
+  font-weight: bold;
+}
