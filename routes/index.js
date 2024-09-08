@@ -8,5 +8,6 @@ const frontController = require('../controllers/frontController');
 router.get('/', frontController.renderHomePage);
 router.get('/user', frontController.renderUserPage);
 router.get('/login', frontController.renderLoginPage);
+router.post('/login', frontController.renderAuthLoginPage);
 
 module.exports = router;

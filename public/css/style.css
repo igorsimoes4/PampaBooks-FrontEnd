@@ -11,6 +11,24 @@ a {
   transition: transform 0.3s;
 }
 
+.card-title {
+  font-size: 1.1rem;
+  max-height: 3rem; /* Limitar altura do título */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+.card-text {
+  max-height: 3rem; /* Limitar altura da descrição para no máximo 2 linhas */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Exibe no máximo 2 linhas */
+  -webkit-box-orient: vertical;
+}
+
 .card:hover {
   transform: scale(1.05);
 }
