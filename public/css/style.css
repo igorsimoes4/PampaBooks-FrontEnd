@@ -75,8 +75,18 @@ footer {
   border-radius: 5px; /* Opcional: dá bordas arredondadas para a imagem */
 }
 
-
 span {
   text-transform: uppercase;
   font-weight: bold;
+}
+
+.container-book {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.img-fluid-book {
+  height: 100%;
 }
