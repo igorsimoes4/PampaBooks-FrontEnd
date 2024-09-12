@@ -77,13 +77,13 @@ const books = [
 
 exports.renderHomePage = async (req, res) => {
   const cart = req.session.cart || [];
-    const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
   res.render('index', { books, HomeActive: 'active', ContactActive: '', totalItems });
 };
 
 exports.renderContactPage = async (req, res) => {
   const cart = req.session.cart || [];
-    const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
   res.render('contact', { title: 'Contato', HomeActive: '', ContactActive: 'active', totalItems });
 };
 
@@ -136,21 +136,20 @@ exports.renderCartPage = async (req, res) => {
   try {
     const cart = req.session.cart || [];
     const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
-    
+
     const cartWithDetails = cart.map(item => {
       const book = books.find(b => b.id === parseInt(item.productId));
       return {
-          ...item,
-          title: book ? book.title : 'Desconhecido',
-          image: book ? book.image : '/images/default.png',
-          price: book ? book.price : 0
+        ...item,
+        title: book ? book.title : 'Desconhecido',
+        image: book ? book.image : '/images/default.png',
+        price: book ? book.price : 0
       };
-  });
+    });
 
     // Renderiza a página do carrinho
     res.render('cart', { cart: cartWithDetails, HomeActive: '', ContactActive: '', totalItems });
   } catch (error) {
-    console.error('Erro ao renderizar a página do carrinho:', error);
     res.status(500).send('Erro ao renderizar a página do carrinho');
   }
 }
@@ -178,9 +177,12 @@ exports.addToCart = (req, res) => {
 
     req.session.cart = cart;
 
-    return res.json({ success: true, message: 'Produto adicionado ao carrinho' });
+    return res.json({
+      success: true,
+      message: 'Produto adicionado ao carrinho com sucesso',
+      type: 'success'
+    });
   } catch (error) {
-    console.error('Erro ao adicionar produto ao carrinho:', error);
-    return res.status(500).json({ success: false, message: 'Erro ao adicionar produto ao carrinho' });
+    return res.status(500).json({ success: false, message: 'Erro ao adicionar produto ao carrinho', type: 'error' });
   }
 };
