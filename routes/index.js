@@ -12,5 +12,6 @@ router.get('/login', frontController.renderLoginPage);
 router.post('/login', frontController.renderAuthLoginPage);
 router.get('/books/:id', frontController.renderBookPage);
 router.get('/cart', frontController.renderCartPage);
+router.post('/cart/add',  frontController.addToCart);
 
 module.exports = router;

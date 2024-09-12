@@ -1,7 +1,7 @@
 <%- include('partials/header') %>
     <%- include('partials/navbar') %>
 
-    <main class="container mt-5 mb-5">
+    <main class="container mt-5 mb-5" style="min-height: 70vh;">
         <h2 class="mb-4">Carrinho de Compras</h2>
 
         <% if (cart.length > 0) { %>
@@ -56,7 +56,6 @@
                 Seu carrinho está vazio. <a href="/catalog">Ver livros disponíveis</a>.
             </div>
         <% } %>
-
     </main>
 
     <%- include('partials/footer') %>

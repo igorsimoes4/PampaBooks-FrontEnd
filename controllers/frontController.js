@@ -76,11 +76,15 @@ const books = [
 
 
 exports.renderHomePage = async (req, res) => {
-  res.render('index', { books });
+  const cart = req.session.cart || [];
+    const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+  res.render('index', { books, HomeActive: 'active', ContactActive: '', totalItems });
 };
 
 exports.renderContactPage = async (req, res) => {
-  res.render('contact', { title: 'Contato' });
+  const cart = req.session.cart || [];
+    const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+  res.render('contact', { title: 'Contato', HomeActive: '', ContactActive: 'active', totalItems });
 };
 
 
@@ -88,7 +92,7 @@ exports.renderUserPage = async (req, res) => {
   try {
     const response = await axios.get('http://127.0.0.1:5000/api/users/');
     const users = response.data;
-    res.render('user', { users });
+    res.render('user', { users, HomeActive: '', ContactActive: '' });
   } catch (error) {
     res.render('user', { users: [], error: 'Erro ao carregar usuários.' });
   }
@@ -111,39 +115,72 @@ exports.renderAuthLoginPage = async (req, res) => {
 };
 
 exports.renderBookPage = async (req, res) => {
+  const cart = req.session.cart || [];
+  const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
   try {
     const bookId = req.params.id;
     // const response = await axios.get(`http://127.0.0.1:5000/api/books/${bookId}`);
     const response = books.find(book => book.id == bookId);
     const book = response;
     if (book) {
-      res.render('book', { book }); // Renderiza a página com o livro encontrado
+      res.render('book', { book, HomeActive: '', ContactActive: '', totalItems }); // Renderiza a página com o livro encontrado
     } else {
-      res.render('book', { book: [], error: 'Livro não encontrado.' }); // Mensagem de erro caso não encontre o livro
+      res.render('book', { book: [], error: 'Livro não encontrado.', HomeActive: '', ContactActive: '', totalItems }); // Mensagem de erro caso não encontre o livro
     }
   } catch (error) {
-    res.render('book', { book: [], error: 'Erro ao carregar livro.' });
+    res.render('book', { book: [], error: 'Erro ao carregar livro.', HomeActive: '', ContactActive: '', totalItems });
   }
 }
 
 exports.renderCartPage = async (req, res) => {
-  const cart = [
-    {
-      id: 1,
-      title: 'O Senhor dos Anéis',
-      image: '/images/book1.jpeg',
-      price: 89.90,
-      quantity: 1
-    },
-    {
-      id: 2,
-      title: 'Harry Potter e a Pedra Filosofal',
-      image: '/images/book2.jpeg',
-      price: 59.90,
-      quantity: 2
-    }
-  ];
-  
-  // Renderizando a página do carrinho
-  res.render('cart', { cart });
+  try {
+    const cart = req.session.cart || [];
+    const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+    
+    const cartWithDetails = cart.map(item => {
+      const book = books.find(b => b.id === parseInt(item.productId));
+      return {
+          ...item,
+          title: book ? book.title : 'Desconhecido',
+          image: book ? book.image : '/images/default.png',
+          price: book ? book.price : 0
+      };
+  });
+
+    // Renderiza a página do carrinho
+    res.render('cart', { cart: cartWithDetails, HomeActive: '', ContactActive: '', totalItems });
+  } catch (error) {
+    console.error('Erro ao renderizar a página do carrinho:', error);
+    res.status(500).send('Erro ao renderizar a página do carrinho');
+  }
 }
+
+exports.addToCart = (req, res) => {
+  try {
+    const { productId, quantity } = req.body;
+
+    if (!productId || quantity === undefined) {
+      throw new Error('Dados do produto ausentes');
+    }
+
+    if (!req.session.cart) {
+      req.session.cart = [];
+    }
+
+    const cart = req.session.cart;
+    const existingProduct = cart.find(item => item.productId === productId);
+
+    if (existingProduct) {
+      existingProduct.quantity += quantity;
+    } else {
+      cart.push({ productId, quantity });
+    }
+
+    req.session.cart = cart;
+
+    return res.json({ success: true, message: 'Produto adicionado ao carrinho' });
+  } catch (error) {
+    console.error('Erro ao adicionar produto ao carrinho:', error);
+    return res.status(500).json({ success: false, message: 'Erro ao adicionar produto ao carrinho' });
+  }
+};
