@@ -22,7 +22,7 @@
               <% } %>
             </div>
 
-            <p class="text-success">R$ <%= book.price %></p>
+            <p class="text-success">R$ <%= book.price.toFixed(2) %></p>
 
             <div class="mt-auto d-flex justify-content-between align-items-center">
               <a href="/books/<%= book.id %>" class="btn btn-sm btn-outline-primary">Detalhes</a>

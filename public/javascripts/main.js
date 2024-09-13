@@ -33,6 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast(window.toastMessage.message, window.toastMessage.type);
     }
 
+    function atualizarItensCarrinho(totalItems) {
+        const cartBadge = document.querySelector('.btn-primary .badge');
+        if (cartBadge) {
+            cartBadge.textContent = totalItems;
+        }
+    }
+
     // Função para enviar uma requisição POST para adicionar um produto ao carrinho
     function adicionarAoCarrinho(productId) {
         fetch('/cart/add', {
@@ -46,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             if (data.success) {
                 showToast(data.message, data.type); // Usa a mensagem do backend
+                atualizarItensCarrinho(data.totalItems);
             } else {
                 showToast(data.message, data.type); // Usa a mensagem do backend
             }

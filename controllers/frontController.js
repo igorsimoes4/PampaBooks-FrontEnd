@@ -177,10 +177,13 @@ exports.addToCart = (req, res) => {
 
     req.session.cart = cart;
 
+    const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+
     return res.json({
       success: true,
       message: 'Produto adicionado ao carrinho com sucesso',
-      type: 'success'
+      type: 'success',
+      totalItems
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: 'Erro ao adicionar produto ao carrinho', type: 'error' });
