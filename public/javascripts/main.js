@@ -28,10 +28,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const storedMessage = localStorage.getItem('toastMessage');
+    if (storedMessage) {
+        const { message, type } = JSON.parse(storedMessage);
+        showToast(message, type);
+        localStorage.removeItem('toastMessage'); // Limpar a mensagem após exibir
+    }
+
     // Exemplo de exibição de toast na carga da página (pode ser removido se não for necessário)
     if (window.toastMessage) {
         showToast(window.toastMessage.message, window.toastMessage.type);
     }
+    
 
     function atualizarItensCarrinho(totalItems) {
         const cartBadge = document.querySelector('.btn-primary .badge');
@@ -71,4 +79,28 @@ document.addEventListener('DOMContentLoaded', () => {
             adicionarAoCarrinho(productId);
         });
     });
+
+
+     // Adiciona o evento de logout
+    document.getElementById('logoutLink').addEventListener('click', async (event) => {
+        event.preventDefault(); // Impede o comportamento padrão do link
+
+        try {
+            const response = await fetch('/logout', { method: 'POST' });
+            if (response.ok) {
+                // Redirecionar ou atualizar a página após logout
+                localStorage.setItem('toastMessage', JSON.stringify({ message: 'Logout realizado com sucesso', type: 'success' }));
+                window.location.href = '/'; // Redireciona para a página inicial
+            } else {
+                const errorData = await response.json();
+                console.error('Erro ao realizar logout:', errorData.message);
+                showToast('Erro ao realizar logout: ' + errorData.message, 'error');
+            }
+        } catch (error) {
+            console.error('Erro na requisição de logout:', error);
+            showToast('Erro ao realizar logout.', 'error');
+        }
+    });
+
+
 });

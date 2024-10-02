@@ -37,7 +37,13 @@
 
 <script>
 // Função para enviar uma requisição POST para adicionar um produto ao carrinho
-
+    <% if (typeof toastMessage !== 'undefined' && toastMessage) { %>
+      window.toastMessage = {
+        message: '<%= toastMessage.message %>',
+        type: '<%= toastMessage.type %>'
+      };
+      showToast(window.toastMessage.message, window.toastMessage.type); // Exibe o toast automaticamente
+    <% } %>
 </script>
 
 <%- include('partials/footer') %>

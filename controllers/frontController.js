@@ -74,17 +74,53 @@ const books = [
   }
 ];
 
+const getUserNameFromToken = async (token) => {
+  if (!token) {
+    console.warn('Token não fornecido');
+    return null; // Retorna null se não houver token
+  }
+
+  try {
+    const response = await axios.get('http://127.0.0.1:5000/api/profile', {
+      headers: {
+        'x-auth-token': token, // Certifique-se de que está passando o token corretamente
+        'Content-Type': 'application/json' // Especifica que está esperando uma resposta em JSON
+      }
+    });
+
+    // Verifica se a resposta possui dados esperados
+    if (response.data && response.data.name) {
+      console.log('Name:', response.data.name);
+      return response.data.name; // Retorna o nome do usuário
+    } else {
+      console.error('Resposta inesperada do servidor:', response.data);
+      return null; // Retorna null se os dados não estiverem no formato esperado
+    }
+  } catch (error) {
+    // Log do erro
+    console.error('Erro ao obter perfil do usuário:', error.message);
+    return null; // Retorna null em caso de erro
+  }
+};
+
 
 exports.renderHomePage = async (req, res) => {
   const cart = req.session.cart || [];
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
-  res.render('index', { books, HomeActive: 'active', ContactActive: '', totalItems });
+  const toastMessage = req.session.toastMessage;
+  const token = req.cookies.token;  // Supondo que o token JWT esteja no cookie
+  let userName = await getUserNameFromToken(token);   
+  req.session.toastMessage = null; 
+  res.render('index', { books, HomeActive: 'active', ContactActive: '', totalItems,  toastMessage,  userName });
 };
 
 exports.renderContactPage = async (req, res) => {
   const cart = req.session.cart || [];
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
-  res.render('contact', { title: 'Contato', HomeActive: '', ContactActive: 'active', totalItems });
+  const token = req.cookies.token;
+  let userName = await getUserNameFromToken(token);
+  res.render('contact', { title: 'Contato', HomeActive: '', ContactActive: 'active', totalItems,  userName });
+
 };
 
 
@@ -92,9 +128,12 @@ exports.renderUserPage = async (req, res) => {
   try {
     const response = await axios.get('http://127.0.0.1:5000/api/users/');
     const users = response.data;
-    res.render('user', { users, HomeActive: '', ContactActive: '' });
+    const token = req.cookies.token;
+    let userName = await getUserNameFromToken(token);
+    res.render('user', { users, HomeActive: '', ContactActive: '',  UserActive: 'active', userName });
+
   } catch (error) {
-    res.render('user', { users: [], error: 'Erro ao carregar usuários.' });
+    res.render('user', { users: [], success: false, message: 'Erro ao carregar usuários.', type: 'error' });
   }
 };
 
@@ -108,31 +147,78 @@ exports.renderAuthLoginPage = async (req, res) => {
     const token = response.data.token;
     res.set('Authorization', `Bearer ${token}`);
     res.cookie('token', token, { httpOnly: true });
-    res.redirect('/');
+    // Certifica-se de que o cookie é definido antes do redirecionamento
+    res.status(200).json({ success: true, message: 'Login successful', redirectUrl: '/' });
   } catch (error) {
-    res.render('login', { error: 'Erro ao autenticar.' });
+    res.render('login', { success: false, message: 'Erro ao autenticar.', type: 'error' });
   }
 };
 
 exports.renderBookPage = async (req, res) => {
   const cart = req.session.cart || [];
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const token = req.cookies.token;
+  let userName = await getUserNameFromToken(token);
+
   try {
     const bookId = req.params.id;
-    // const response = await axios.get(`http://127.0.0.1:5000/api/books/${bookId}`);
-    const response = books.find(book => book.id == bookId);
-    const book = response;
+    // const book = await axios.get(`http://127.0.0.1:5000/api/books/${bookId}`);
+
+    const book = books.find(book => book.id == bookId);
+
     if (book) {
-      res.render('book', { book, HomeActive: '', ContactActive: '', totalItems }); // Renderiza a página com o livro encontrado
+      res.render('book', { 
+        book, 
+        HomeActive: '', 
+        ContactActive: '', 
+        totalItems,
+        success: true,  // Aqui sucesso porque o livro foi encontrado
+        message: '',    // Sem mensagem de erro quando o livro for encontrado
+        type: '',
+        userName
+      });
     } else {
-      res.render('book', { book: [], error: 'Livro não encontrado.', HomeActive: '', ContactActive: '', totalItems }); // Mensagem de erro caso não encontre o livro
+      // Renderiza a página do livro com mensagem de erro
+      // res.render('index', {
+      //   books,
+      //   success: false,
+      //   message: 'Livro não encontrado.',
+      //   type: 'error',
+      //   totalItems,
+      //   HomeActive: '',
+      //   ContactActive: ''
+      // });
+      req.session.toastMessage = {
+        success: false,
+        message: 'Livro não encontrado.',
+        type: 'error'
+      };
+      return res.redirect('/');
     }
   } catch (error) {
-    res.render('book', { book: [], error: 'Erro ao carregar livro.', HomeActive: '', ContactActive: '', totalItems });
+    // Renderiza a página do livro com mensagem de erro
+    // res.render('book', {
+    //   book: null,
+    //   success: false,
+    //   message: 'Erro ao carregar a página do livro.',
+    //   type: 'error',
+    //   totalItems,
+    //   HomeActive: '',
+    //   ContactActive: ''
+    // });
+    req.session.toastMessage = {
+      success: false,
+      message: 'Erro ao carregar a página do livro.',
+      type: 'error'
+    };
+    return res.redirect('index');
   }
-}
+};
+
 
 exports.renderCartPage = async (req, res) => {
+  const token = req.cookies.token;
+  let userName = await getUserNameFromToken(token);
   try {
     const cart = req.session.cart || [];
     const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
@@ -148,9 +234,10 @@ exports.renderCartPage = async (req, res) => {
     });
 
     // Renderiza a página do carrinho
-    res.render('cart', { cart: cartWithDetails, HomeActive: '', ContactActive: '', totalItems });
+    res.render('cart', { cart: cartWithDetails, HomeActive: '', ContactActive: '', totalItems,  userName });
+
   } catch (error) {
-    res.status(500).send('Erro ao renderizar a página do carrinho');
+    res.status(500).json({ success: false, message: 'Erro ao renderizar a página do carrinho', type: 'error' });
   }
 }
 
@@ -188,4 +275,18 @@ exports.addToCart = (req, res) => {
   } catch (error) {
     return res.status(500).json({ success: false, message: 'Erro ao adicionar produto ao carrinho', type: 'error' });
   }
+};
+
+exports.logoutUser = (req, res) => {
+  
+  // Remove o token do cookie
+  res.clearCookie('token'); // Certifique-se de que o nome do cookie é 'token'
+
+  // Opcional: Limpar a sessão do usuário
+  req.session.destroy(err => {
+    if (err) {
+      return res.status(500).json({ message: 'Erro ao encerrar a sessão' });
+    }
+    res.status(200).json({ message: 'Logout realizado com sucesso' });
+  });
 };
