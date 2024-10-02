@@ -81,7 +81,7 @@ const getUserNameFromToken = async (token) => {
   }
 
   try {
-    const response = await axios.get('http://127.0.0.1:5000/api/profile', {
+    const response = await axios.get('https://pampabooks-users.onrender.com/api/profile', {
       headers: {
         'x-auth-token': token, // Certifique-se de que está passando o token corretamente
         'Content-Type': 'application/json' // Especifica que está esperando uma resposta em JSON
@@ -126,7 +126,7 @@ exports.renderContactPage = async (req, res) => {
 
 exports.renderUserPage = async (req, res) => {
   try {
-    const response = await axios.get('http://127.0.0.1:5000/api/users/');
+    const response = await axios.get('https://pampabooks-users.onrender.com/api/users/');
     const users = response.data;
     const token = req.cookies.token;
     let userName = await getUserNameFromToken(token);
@@ -143,7 +143,7 @@ exports.renderLoginPage = async (req, res) => {
 
 exports.renderAuthLoginPage = async (req, res) => {
   try {
-    const response = await axios.post('http://127.0.0.1:5000/api/login', req.body);
+    const response = await axios.post('https://pampabooks-users.onrender.com/api/login', req.body);
     const token = response.data.token;
     res.set('Authorization', `Bearer ${token}`);
     res.cookie('token', token, { httpOnly: true });
