@@ -24,7 +24,7 @@ Este é o front-end do e-commerce de livros PampaBooks. Ele fornece as interface
 
 1. Clone este repositório:
     ```bash
-    git clone https://github.com/seu-usuario/pampabooks-frontend.git
+    git clone https://github.com/igorsimoes4/pampabooks-frontend.git
     ```
 
 2. Instale as dependências:
