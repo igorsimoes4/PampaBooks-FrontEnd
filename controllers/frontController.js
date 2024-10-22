@@ -104,6 +104,8 @@ const getUserNameFromToken = async (token) => {
 };
 
 
+
+
 exports.renderHomePage = async (req, res) => {
   const cart = req.session.cart || [];
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
@@ -317,4 +319,47 @@ exports.logoutUser = (req, res) => {
     }
     res.status(200).json({ message: 'Logout realizado com sucesso' });
   });
+};
+
+const getUserFromToken = async (token) => {
+  if (!token) {
+    console.warn('Token não fornecido');
+    return null; // Retorna null se não houver token
+  }
+
+  try {
+    const response = await axios.get('https://pampabooks-users.onrender.com/api/profile', {
+      headers: {
+        'x-auth-token': token, // Certifique-se de que está passando o token corretamente
+        'Content-Type': 'application/json' // Especifica que está esperando uma resposta em JSON
+      }
+    });
+
+    // Verifica se a resposta possui dados esperados
+    if (response.data) {
+      return response.data; // Retorna os dados do perfil do usuário
+    } else {
+      console.error('Resposta inesperada do servidor:', response.data);
+      return null; // Retorna null se os dados não estiverem no formato esperado
+    }
+  } catch (error) {
+    // Log do erro
+    console.error('Erro ao obter perfil do usuário:', error.message);
+    return null; // Retorna null em caso de erro
+  }
+};
+
+exports.getDashboard = async (req, res) => {
+  const token = req.cookies.token;
+
+  // Obtém as informações do usuário a partir do token
+  const user = await getUserFromToken(token);
+
+  // Verifica se o perfil do usuário foi obtido corretamente
+  if (!user) {
+    return res.status(401).render('error', { message: 'Usuário não autenticado.' }); // Renderiza uma página de erro
+  }
+
+  // Renderiza a página do painel com as informações do usuário
+  res.render('painel', { user });
 };

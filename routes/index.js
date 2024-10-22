@@ -16,5 +16,6 @@ router.post('/cart/add', frontController.addToCart);
 router.post('/logout', frontController.logoutUser);
 router.get('/register', frontController.renderRegistrePage);
 router.post('/register', frontController.Registre);
+router.get('/painel', frontController.getDashboard);
 
 module.exports = router;
