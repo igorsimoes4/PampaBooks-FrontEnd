@@ -14,5 +14,7 @@ router.get('/books/:id', frontController.renderBookPage);
 router.get('/cart', frontController.renderCartPage);
 router.post('/cart/add', frontController.addToCart);
 router.post('/logout', frontController.logoutUser);
+router.get('/register', frontController.renderRegistrePage);
+router.post('/register', frontController.Registre);
 
 module.exports = router;

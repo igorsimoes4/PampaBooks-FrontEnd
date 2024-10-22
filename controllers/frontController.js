@@ -141,6 +141,34 @@ exports.renderLoginPage = async (req, res) => {
   res.render('login');
 }
 
+exports.renderRegistrePage = async (req, res) => {
+  res.render('register');
+}
+
+exports.Registre = async (req, res) => {
+  const { name, email, password } = req.body;
+
+  try {
+    const response = await axios.post('https://pampabooks-users.onrender.com/api/register', {
+      name,
+      email,
+      password,
+    });
+
+    if (response.status === 200) {
+      // Sucesso no registro, renderiza página de registro com toast de sucesso
+      return res.render('register', { toastMessage: { message: 'Registro realizado com sucesso!', type: 'success' } });
+    } else {
+      throw new Error('Falha ao registrar.');
+    }
+  } catch (error) {
+    console.error('Erro ao registrar usuário:', error.message);
+    // Renderiza a página de registro com toast de erro
+    return res.render('register', { toastMessage: { message: 'Erro ao registrar. Tente novamente.', type: 'error' } });
+  }
+};
+
+
 exports.renderAuthLoginPage = async (req, res) => {
   try {
     const response = await axios.post('https://pampabooks-users.onrender.com/api/login', req.body);
