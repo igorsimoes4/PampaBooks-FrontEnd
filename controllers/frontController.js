@@ -334,7 +334,7 @@ const getUserFromToken = async (token) => {
         'Content-Type': 'application/json' // Especifica que está esperando uma resposta em JSON
       }
     });
-
+    console.log(response.data);
     // Verifica se a resposta possui dados esperados
     if (response.data) {
       return response.data; // Retorna os dados do perfil do usuário
@@ -363,3 +363,29 @@ exports.getDashboard = async (req, res) => {
   // Renderiza a página do painel com as informações do usuário
   res.render('painel', { user });
 };
+
+exports.perfil  = async (req, res) => {
+  const token = req.cookies.token;
+  const user = await getUserFromToken(token);
+  if (!user) {
+    return res.status(401).render('error', { message: 'Usuário não autenticado.' }); // Renderiza uma página de erro
+  }
+  res.render('perfil', { user });
+}
+
+exports.config  = async (req, res) => {
+  const token = req.cookies.token;
+  const user = await getUserFromToken(token);
+  if (!user) {
+    return res.status(401).render('error', { message: 'Usuário não autenticado.' }); // Renderiza uma página de erro
+  }
+  res.render('config', { user });
+}
+
+exports.renderBookAdd  = async (req, res) => {
+  res.render('addBook', {});
+}
+
+exports.BookAdd  = async (req, res) => {
+}
+

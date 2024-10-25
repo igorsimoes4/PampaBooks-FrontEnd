@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel - PampaBooks</title>
+    <title>Configurações - PampaBooks</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
         body, html {
@@ -52,11 +52,6 @@
             overflow-y: auto; /* Permite rolagem se o conteúdo for muito grande */
         }
 
-        .total-price {
-            font-weight: bold;
-            color: #198754;
-        }
-
         .card-header {
             background-color: #007bff;
             color: white;
@@ -68,8 +63,8 @@
     </style>
 </head>
 <body>
-    <!-- Barra Lateral (Sidebar) -->
     <div class="d-flex">
+        <!-- Barra Lateral (Sidebar) -->
         <div class="sidebar bg-dark">
             <h4 class="text-center text-white mb-4">Menu</h4>
             <a href="/painel">Histórico de Compras</a>
@@ -82,41 +77,16 @@
         <div class="main-content">
             <div class="container-fluid">
                 <div class="text-center">
-                    <h2>Bem-vindo, <%= user.name %>!</h2>
+                    <h2>Configurações da Conta</h2>
                 </div>
 
-                <!-- Histórico de Compras -->
+                <!-- Configurações -->
                 <div class="card mt-4">
                     <div class="card-header">
-                        <h4 class="mb-0">Histórico de Compras</h4>
+                        <h4 class="mb-0">Preferências</h4>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Data</th>
-                                        <th>Itens</th>
-                                        <th>Preço Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% user.purchaseHistory.forEach(purchase => { %>
-                                        <tr>
-                                            <td><%=new Date(purchase.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) %></td>
-                                            <td>
-                                                <ul>
-                                                    <% purchase.items.forEach(item => { %>
-                                                        <li><%= item.quantity %> x <%= item.bookId.title %></li>
-                                                    <% }) %>
-                                                </ul>
-                                            </td>
-                                            <td class="total-price">R$ <%= purchase.totalPrice.toFixed(2) %></td>
-                                        </tr>
-                                    <% }) %>
-                                </tbody>
-                            </table>
-                        </div>
+                        <p>Configurações da conta e preferências do usuário.</p>
                     </div>
                 </div>
             </div>
