@@ -386,6 +386,6 @@ exports.renderBookAdd  = async (req, res) => {
   res.render('addBook', {});
 }
 
-exports.BookAdd  = async (req, res) => {
+exports.bookAdd  = async (req, res) => {
 }
 
