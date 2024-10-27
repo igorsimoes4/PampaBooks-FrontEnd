@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Livro - PampaBooks</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+    <link rel="stylesheet" href="/css/painel.css">
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar bg-dark p-3">
+            <h4 class="text-center text-white mb-4">Menu</h4>
+            <a href="/painel">
+                <i class="fas fa-history me-2"></i> Histórico de Compras
+            </a>
+            <a href="/painel/perfil" >
+                <i class="fas fa-user me-2"></i> Perfil
+            </a>
+            <a href="/painel/config" >
+                <i class="fas fa-cog me-2"></i> Configurações
+            </a>
+            <a href="/painel/bookadd" >
+                <i class="fas fa-book me-2"></i> Cadastrar Livro
+            </a>
+            <a href="#" id="logoutLink" >
+                <i class="fas fa-sign-out-alt me-2"></i> Sair
+            </a>
+        </div>
+
+        <!-- Main content area -->
+        <div class="container p-5">
+            <h2 class="mb-4">Cadastrar Novo Livro</h2>
+            <form id="bookForm" action="/bookadd" method="POST" enctype="multipart/form-data">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="title" class="form-label">Título</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="author" class="form-label">Autor</label>
+                        <input type="text" class="form-control" id="author" name="author" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Descrição</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="price" class="form-label">Preço</label>
+                        <input type="number" class="form-control" id="price" name="price" required step="0.01">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="image" class="form-label">Imagem</label>
+                        <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="rating" class="form-label">Avaliação</label>
+                        <input type="number" class="form-control" id="rating" name="rating" required min="1" max="5">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="category" class="form-label">Categoria</label>
+                        <input type="text" class="form-control" id="category" name="category" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mb-3">Cadastrar Livro</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3">
+        <div id="toast-template" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Notificação</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('bookForm');
+
+            form.addEventListener('submit', (event) => {
+                event.preventDefault(); // Prevenir envio padrão
+
+                const formData = new FormData(form);
+                const dataForm = {
+                    title: formData.get('title'),
+                    author: formData.get('author'),
+                    description: formData.get('description'),
+                    price: parseFloat(formData.get('price')),
+                    image: formData.get('image').name, // A imagem pode precisar de um tratamento especial
+                    rating: parseInt(formData.get('rating')),
+                    category: formData.get('category'),
+                };
+
+                fetch('/bookadd', { // URL do seu microserviço
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dataForm)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message || 'Livro cadastrado com sucesso!', 'success');
+                    } else {
+                        showToast(data.message || 'Erro ao cadastrar livro.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    showToast('Erro ao cadastrar livro.', 'error');
+                });
+            });
+
+            function showToast(message, type = 'success') {
+                const toastContainer = document.getElementById('toast-container');
+                const toastTemplate = document.getElementById('toast-template').content.cloneNode(true);
+                const toastElement = toastTemplate.querySelector('.toast');
+                toastElement.classList.add(type === 'error' ? 'bg-danger' : 'bg-success');
+                toastElement.querySelector('.toast-body').textContent = message;
+
+                toastContainer.appendChild(toastElement);
+
+                const toast = new bootstrap.Toast(toastElement);
+                toast.show();
+
+                toastElement.addEventListener('hidden.bs.toast', () => {
+                    toastElement.remove();
+                });
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script src="/javascripts/main.js"></script>
+</body>
+</html>

@@ -72,14 +72,14 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showToast('Registro realizado com sucesso!', 'success');
+                        showToast(data.message ||'Registro realizado com sucesso!', 'success');
                     } else {
-                        showToast(data.message || 'Erro ao registrar.', 'error');
+                        showToast(data.message || 'Erro ao registrar usuário.', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Erro:', error);
-                    showToast('Registro realizado com sucesso!', 'success');
+                    showToast('Erro ao registrar usuário.', 'error');
                 });
             });
 

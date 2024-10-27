@@ -5,72 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configurações - PampaBooks</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <style>
-        body, html {
-            height: 100%;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
-        }
-
-        .d-flex {
-            height: 100%;
-        }
-
-        .sidebar {
-            min-height: 100vh;
-            background-color: #343a40;
-            padding-top: 20px;
-        }
-
-        .sidebar a {
-            color: white;
-            padding: 15px;
-            text-decoration: none;
-            display: block;
-        }
-
-        .sidebar a:hover {
-            background-color: #495057;
-        }
-
-        .main-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-        }
-
-        .card {
-            flex-grow: 1; /* Faz o card crescer para ocupar o espaço disponível */
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card-body {
-            flex-grow: 1;
-            overflow-y: auto; /* Permite rolagem se o conteúdo for muito grande */
-        }
-
-        .card-header {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .btn-logout {
-            margin-top: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">    
+    <link rel="stylesheet" href="/css/painel.css">
 </head>
 <body>
     <div class="d-flex">
         <!-- Barra Lateral (Sidebar) -->
-        <div class="sidebar bg-dark">
+        <div class="sidebar bg-dark p-3">
             <h4 class="text-center text-white mb-4">Menu</h4>
-            <a href="/painel">Histórico de Compras</a>
-            <a href="/painel/perfil">Perfil</a>
-            <a href="/painel/config">Configurações</a>
-            <a href="#" id="logoutLink" class="btn btn-danger btn-block mx-3 mt-4">Sair</a>
+            <a href="/painel">
+                <i class="fas fa-history me-2"></i> Histórico de Compras
+            </a>
+            <a href="/painel/perfil" >
+                <i class="fas fa-user me-2"></i> Perfil
+            </a>
+            <a href="/painel/config" >
+                <i class="fas fa-cog me-2"></i> Configurações
+            </a>
+            <a href="/painel/bookadd" >
+                <i class="fas fa-book me-2"></i> Cadastrar Livro
+            </a>
+            <a href="#" id="logoutLink" >
+                <i class="fas fa-sign-out-alt me-2"></i> Sair
+            </a>
         </div>
 
         <!-- Conteúdo Principal -->

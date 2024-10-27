@@ -157,16 +157,16 @@ exports.Registre = async (req, res) => {
       password,
     });
 
-    if (response.status === 200) {
+    if (response.status === 201) {
       // Sucesso no registro, renderiza página de registro com toast de sucesso
-      return res.render('register', { toastMessage: { message: 'Registro realizado com sucesso!', type: 'success' } });
+      res.status(200).json({ success: true, message: 'User registered successfully' });
     } else {
       throw new Error('Falha ao registrar.');
     }
   } catch (error) {
     console.error('Erro ao registrar usuário:', error.message);
     // Renderiza a página de registro com toast de erro
-    return res.render('register', { toastMessage: { message: 'Erro ao registrar. Tente novamente.', type: 'error' } });
+    res.status(400).json({ success: false, message: 'Falha ao registrar usuário.' });
   }
 };
 
@@ -208,16 +208,6 @@ exports.renderBookPage = async (req, res) => {
         userName
       });
     } else {
-      // Renderiza a página do livro com mensagem de erro
-      // res.render('index', {
-      //   books,
-      //   success: false,
-      //   message: 'Livro não encontrado.',
-      //   type: 'error',
-      //   totalItems,
-      //   HomeActive: '',
-      //   ContactActive: ''
-      // });
       req.session.toastMessage = {
         success: false,
         message: 'Livro não encontrado.',
@@ -226,16 +216,6 @@ exports.renderBookPage = async (req, res) => {
       return res.redirect('/');
     }
   } catch (error) {
-    // Renderiza a página do livro com mensagem de erro
-    // res.render('book', {
-    //   book: null,
-    //   success: false,
-    //   message: 'Erro ao carregar a página do livro.',
-    //   type: 'error',
-    //   totalItems,
-    //   HomeActive: '',
-    //   ContactActive: ''
-    // });
     req.session.toastMessage = {
       success: false,
       message: 'Erro ao carregar a página do livro.',
@@ -334,7 +314,6 @@ const getUserFromToken = async (token) => {
         'Content-Type': 'application/json' // Especifica que está esperando uma resposta em JSON
       }
     });
-    console.log(response.data);
     // Verifica se a resposta possui dados esperados
     if (response.data) {
       return response.data; // Retorna os dados do perfil do usuário
@@ -383,9 +362,33 @@ exports.config  = async (req, res) => {
 }
 
 exports.renderBookAdd  = async (req, res) => {
-  res.render('addBook', {});
+  const token = req.cookies.token;
+  const user = await getUserFromToken(token);
+  if (!user) {
+    return res.status(401).render('error', { message: 'Usuário não autenticado.' }); // Renderiza uma página de erro
+  }
+  res.render('addBook', { user });
+
 }
 
 exports.bookAdd  = async (req, res) => {
+  const { title, author, description,  price, image, rating, category } = req.body;
+
+  try {
+    const response = await axios.post('https://pampabooks-users.onrender.com/api/register', {
+      title, author, description, price, image, rating, category,
+    });
+
+    if (response.status === 201) {
+      // Sucesso no registro, renderiza página de registro com toast de sucesso
+      res.status(200).json({ success: true, message: 'User registered successfully' });
+    } else {
+      throw new Error('Falha ao registrar.');
+    }
+  } catch (error) {
+    console.error('Erro ao registrar usuário:', error.message);
+    // Renderiza a página de registro com toast de erro
+    res.status(400).json({ success: false, message: 'Falha ao registrar usuário.' });
+  }
 }
 
