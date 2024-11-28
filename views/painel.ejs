@@ -1,81 +1,105 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel - PampaBooks</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/css/painel.css">
 </head>
+
 <body>
     <!-- Barra Lateral (Sidebar) -->
     <div class="d-flex">
-        <div class="sidebar bg-dark p-3">
-            <h4 class="text-center text-white mb-4">Menu</h4>
-            <a href="/painel">
-                <i class="fas fa-history me-2"></i> Histórico de Compras
-            </a>
-            <a href="/painel/perfil" >
-                <i class="fas fa-user me-2"></i> Perfil
-            </a>
-            <a href="/painel/config" >
-                <i class="fas fa-cog me-2"></i> Configurações
-            </a>
-            <a href="/painel/bookadd" >
-                <i class="fas fa-book me-2"></i> Cadastrar Livro
-            </a>
-            <a href="#" id="logoutLink" >
-                <i class="fas fa-sign-out-alt me-2"></i> Sair
-            </a>
-        </div>
+        <%- include('partials/sidebar') %>
 
-        <!-- Conteúdo Principal -->
-        <div class="main-content">
-            <div class="container-fluid">
-                <div class="text-center">
-                    <h2>Bem-vindo, <%= user.name %>!</h2>
-                </div>
-
-                <!-- Histórico de Compras -->
-                <div class="card mt-4">
-                    <div class="card-header">
-                        <h4 class="mb-0">Histórico de Compras</h4>
+            <!-- Conteúdo Principal -->
+            <div class="main-content">
+                <div class="container-fluid">
+                    <div class="text-center">
+                        <h2>Bem-vindo, <%= user.name %>!</h2>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Data</th>
-                                        <th>Itens</th>
-                                        <th>Preço Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% user.purchaseHistory.forEach(purchase => { %>
-                                        <tr>
-                                            <td><%=new Date(purchase.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) %></td>
-                                            <td>
-                                                <ul>
-                                                    <% purchase.items.forEach(item => { %>
-                                                        <li><%= item.quantity %> x <%= item.bookId.title %></li>
-                                                    <% }) %>
-                                                </ul>
-                                            </td>
-                                            <td class="total-price">R$ <%= purchase.totalPrice.toFixed(2) %></td>
-                                        </tr>
-                                    <% }) %>
-                                </tbody>
-                            </table>
+
+                    <!-- Histórico de Compras -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h4 class="mb-0">Histórico de Compras</h4>
                         </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Data</th>
+                                            <th>Itens</th>
+                                            <th>Preço Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (user.purchaseHistory.length> 0) { %>
+                                            <% user.purchaseHistory.forEach(purchase=> { %>
+                                                <tr>
+                                                    <td>
+                                                        <%= new Date(purchase.date).toLocaleDateString('pt-BR', {
+                                                            timeZone: 'UTC' }) %>
+                                                    </td>
+                                                    <td>
+                                                        <ul>
+                                                            <% purchase.items.forEach(item=> { %>
+                                                                <li>
+                                                                    <%= item.quantity %> - <%= item.title %>
+                                                                </li>
+                                                                <% }) %>
+                                                        </ul>
+                                                    </td>
+                                                    <td class="total-price">R$ <%= purchase.totalPrice.toFixed(2) %>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                                    <% } else { %>
+                                                        <tr>
+                                                            <td colspan="3" class="text-center">Nenhum histórico de
+                                                                compras encontrado.</td>
+                                                        </tr>
+                                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Controles de Paginação -->
+                            <% if (totalPages> 1) { %>
+                                <nav aria-label="Navegação de página">
+                                    <ul class="pagination justify-content-center">
+                                        <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                                            <a class="page-link"
+                                                href="?page=<%= currentPage - 1 %>&limit=5">Anterior</a>
+                                        </li>
+                                        <% for (let i=1; i <=totalPages; i++) { %>
+                                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                                <a class="page-link" href="?page=<%= i %>&limit=4">
+                                                    <%= i %>
+                                                </a>
+                                            </li>
+                                            <% } %>
+                                                <li
+                                                    class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                                                    <a class="page-link"
+                                                        href="?page=<%= currentPage + 1 %>&limit=4">Próximo</a>
+                                                </li>
+                                    </ul>
+                                </nav>
+                                <% } %>
+                        </div>
+
                     </div>
                 </div>
             </div>
-        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/javascripts/main.js"></script>
 </body>
+
 </html>

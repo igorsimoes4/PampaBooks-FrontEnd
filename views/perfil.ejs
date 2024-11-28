@@ -10,25 +10,7 @@
 </head>
 <body>
     <div class="d-flex">
-        <!-- Barra Lateral (Sidebar) -->
-        <div class="sidebar bg-dark p-3">
-            <h4 class="text-center text-white mb-4">Menu</h4>
-            <a href="/painel">
-                <i class="fas fa-history me-2"></i> Histórico de Compras
-            </a>
-            <a href="/painel/perfil" >
-                <i class="fas fa-user me-2"></i> Perfil
-            </a>
-            <a href="/painel/config" >
-                <i class="fas fa-cog me-2"></i> Configurações
-            </a>
-            <a href="/painel/bookadd" >
-                <i class="fas fa-book me-2"></i> Cadastrar Livro
-            </a>
-            <a href="#" id="logoutLink" >
-                <i class="fas fa-sign-out-alt me-2"></i> Sair
-            </a>
-        </div>
+        <%- include('partials/sidebar') %>
 
         <!-- Conteúdo Principal -->
         <div class="main-content">

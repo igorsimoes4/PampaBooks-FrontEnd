@@ -1,4 +1,5 @@
 const axios = require('axios');
+const path = require('path');
 const books = [
   {
     id: 1,
@@ -103,17 +104,16 @@ const getUserNameFromToken = async (token) => {
   }
 };
 
-
-
-
 exports.renderHomePage = async (req, res) => {
   const cart = req.session.cart || [];
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
   const toastMessage = req.session.toastMessage;
   const token = req.cookies.token;  // Supondo que o token JWT esteja no cookie
-  let userName = await getUserNameFromToken(token);   
-  req.session.toastMessage = null; 
-  res.render('index', { books, HomeActive: 'active', ContactActive: '', totalItems,  toastMessage,  userName });
+  const response = await axios.get('http://127.0.0.1:3002/api/books');
+  const books = response.data.books;
+  let userName = await getUserNameFromToken(token);
+  req.session.toastMessage = null;
+  res.render('index', { books, HomeActive: 'active', ContactActive: '', totalItems, toastMessage, userName });
 };
 
 exports.renderContactPage = async (req, res) => {
@@ -121,7 +121,7 @@ exports.renderContactPage = async (req, res) => {
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
   const token = req.cookies.token;
   let userName = await getUserNameFromToken(token);
-  res.render('contact', { title: 'Contato', HomeActive: '', ContactActive: 'active', totalItems,  userName });
+  res.render('contact', { title: 'Contato', HomeActive: '', ContactActive: 'active', totalItems, userName });
 
 };
 
@@ -132,7 +132,7 @@ exports.renderUserPage = async (req, res) => {
     const users = response.data;
     const token = req.cookies.token;
     let userName = await getUserNameFromToken(token);
-    res.render('user', { users, HomeActive: '', ContactActive: '',  UserActive: 'active', userName });
+    res.render('user', { users, HomeActive: '', ContactActive: '', UserActive: 'active', userName });
 
   } catch (error) {
     res.render('user', { users: [], success: false, message: 'Erro ao carregar usuários.', type: 'error' });
@@ -192,15 +192,15 @@ exports.renderBookPage = async (req, res) => {
 
   try {
     const bookId = req.params.id;
-    // const book = await axios.get(`http://127.0.0.1:5000/api/books/${bookId}`);
+    const book = await axios.get(`http://127.0.0.1:3002/api/books/${bookId}`);
 
-    const book = books.find(book => book.id == bookId);
+    // const book = books.find(book => book.id == bookId);
 
     if (book) {
-      res.render('book', { 
-        book, 
-        HomeActive: '', 
-        ContactActive: '', 
+      res.render('book', {
+        book,
+        HomeActive: '',
+        ContactActive: '',
         totalItems,
         success: true,  // Aqui sucesso porque o livro foi encontrado
         message: '',    // Sem mensagem de erro quando o livro for encontrado
@@ -229,27 +229,59 @@ exports.renderBookPage = async (req, res) => {
 exports.renderCartPage = async (req, res) => {
   const token = req.cookies.token;
   let userName = await getUserNameFromToken(token);
+
   try {
+    // Obtendo o carrinho da sessão
     const cart = req.session.cart || [];
     const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-    const cartWithDetails = cart.map(item => {
-      const book = books.find(b => b.id === parseInt(item.productId));
-      return {
-        ...item,
-        title: book ? book.title : 'Desconhecido',
-        image: book ? book.image : '/images/default.png',
-        price: book ? book.price : 0
-      };
+    let cartWithDetails = [];
+
+    // Verificar se há produtos no carrinho antes de buscar detalhes
+    if (cart.length > 0) {
+      // Extrair os IDs dos produtos no carrinho
+      const productIds = cart.map(item => item.productId);
+
+      // Realizar uma requisição ao microserviço de livros
+      const response = await axios.get(`http://127.0.0.1:3002/api/books/search`, {
+        params: { ids: productIds.join(',') }
+      });
+
+      // Obter os detalhes dos livros da resposta
+      const books = response.data.books;
+
+      // Mapear o carrinho com os detalhes dos livros
+      cartWithDetails = cart.map(item => {
+        const book = books.find(b => b._id === item.productId);
+        return {
+          ...item,
+          title: book ? book.title : 'Desconhecido',
+          image: book ? book.image : '/images/default.png',
+          price: book ? book.price : 0
+        };
+      });
+    }
+
+    // Renderizar a página do carrinho
+    res.render('cart', {
+      cart: cartWithDetails,
+      HomeActive: '',
+      ContactActive: '',
+      totalItems,
+      userName
     });
 
-    // Renderiza a página do carrinho
-    res.render('cart', { cart: cartWithDetails, HomeActive: '', ContactActive: '', totalItems,  userName });
-
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Erro ao renderizar a página do carrinho', type: 'error' });
+    console.error('Erro ao renderizar a página do carrinho:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao renderizar a página do carrinho',
+      type: 'error'
+    });
   }
-}
+};
+
+
 
 exports.addToCart = (req, res) => {
   try {
@@ -288,7 +320,7 @@ exports.addToCart = (req, res) => {
 };
 
 exports.logoutUser = (req, res) => {
-  
+
   // Remove o token do cookie
   res.clearCookie('token'); // Certifique-se de que o nome do cookie é 'token'
 
@@ -334,16 +366,61 @@ exports.getDashboard = async (req, res) => {
   // Obtém as informações do usuário a partir do token
   const user = await getUserFromToken(token);
 
-  // Verifica se o perfil do usuário foi obtido corretamente
   if (!user) {
-    return res.status(401).render('error', { message: 'Usuário não autenticado.' }); // Renderiza uma página de erro
+    return res.status(401).render('error', { message: 'Usuário não autenticado.' });
   }
 
-  // Renderiza a página do painel com as informações do usuário
-  res.render('painel', { user });
+  // Obter parâmetros de paginação
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 4;
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+
+  // Histórico de compras paginado
+  const totalPurchases = user.purchaseHistory.length;
+  const paginatedHistory = user.purchaseHistory.slice(startIndex, endIndex);
+
+  // Buscar detalhes dos livros caso estejam faltando
+  const bookIds = paginatedHistory.flatMap(purchase => purchase.items.map(item => item.bookId));
+  let books = [];
+
+  if (bookIds.length > 0) {
+    try {
+      const response = await axios.get('http://127.0.0.1:3002/api/books/search', {
+        params: { ids: bookIds.join(',') }
+      });
+      books = response.data.books;
+    } catch (error) {
+      console.error('Erro ao buscar detalhes dos livros:', error.message);
+    }
+  }
+
+  // Mapear os itens do histórico com os detalhes dos livros
+  const historyWithBookDetails = paginatedHistory.map(purchase => {
+    const itemsWithDetails = purchase.items.map(item => {
+      const book = books.find(b => b._id === item.bookId) || {};
+      return {
+        ...item,
+        title: book.title || 'Desconhecido',
+        price: book.price || 0
+      };
+    });
+    return { ...purchase, items: itemsWithDetails };
+  });
+
+  // Total de páginas
+  const totalPages = Math.ceil(totalPurchases / limit);
+
+  res.render('painel', {
+    user: { ...user, purchaseHistory: historyWithBookDetails },
+    currentPage: page,
+    totalPages
+  });
 };
 
-exports.perfil  = async (req, res) => {
+
+
+exports.perfil = async (req, res) => {
   const token = req.cookies.token;
   const user = await getUserFromToken(token);
   if (!user) {
@@ -352,7 +429,7 @@ exports.perfil  = async (req, res) => {
   res.render('perfil', { user });
 }
 
-exports.config  = async (req, res) => {
+exports.config = async (req, res) => {
   const token = req.cookies.token;
   const user = await getUserFromToken(token);
   if (!user) {
@@ -361,7 +438,7 @@ exports.config  = async (req, res) => {
   res.render('config', { user });
 }
 
-exports.renderBookAdd  = async (req, res) => {
+exports.renderBookAdd = async (req, res) => {
   const token = req.cookies.token;
   const user = await getUserFromToken(token);
   if (!user) {
@@ -371,24 +448,80 @@ exports.renderBookAdd  = async (req, res) => {
 
 }
 
-exports.bookAdd  = async (req, res) => {
-  const { title, author, description,  price, image, rating, category } = req.body;
-
+exports.bookAdd = async (req, res) => {
   try {
-    const response = await axios.post('https://pampabooks-users.onrender.com/api/register', {
-      title, author, description, price, image, rating, category,
+    // Extraindo dados do formulário
+    const { title, author, description, price, rating, category } = req.body;
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : '';
+
+    // Enviando os dados para o microserviço de livros
+    const response = await axios.post('http://127.0.0.1:3002/api/books/', {
+      title,
+      author,
+      description,
+      price: parseFloat(price),
+      image: imagePath,
+      rating: parseInt(rating),
+      category
     });
 
-    if (response.status === 201) {
-      // Sucesso no registro, renderiza página de registro com toast de sucesso
-      res.status(200).json({ success: true, message: 'User registered successfully' });
+    console.log("Livro Add", response);
+
+    if (response.data.success) {
+      // Sucesso
+      return res.status(200).json({ success: true, message: 'Livro cadastrado com sucesso!', redirectUrl: '/painel/bookadd' });
     } else {
-      throw new Error('Falha ao registrar.');
+      throw new Error('Falha ao cadastrar livro.');
     }
   } catch (error) {
-    console.error('Erro ao registrar usuário:', error.message);
-    // Renderiza a página de registro com toast de erro
-    res.status(400).json({ success: false, message: 'Falha ao registrar usuário.' });
+    console.error('Erro ao cadastrar livro:', error.message);
+    return res.status(400).json({ success: false, message: 'Erro ao cadastrar livro.' });
   }
 }
+
+exports.finalizeCheckout = async (req, res) => {
+  const { address, payment } = req.body;
+  const token = req.cookies.token; // Obter o token salvo no cookie
+  const cart = req.session.cart;
+  console.log("Carrinho na sessão:", cart);
+
+  if (!cart) {
+    return res.status(401).json({ success: false, message: 'Carrinho vazio.' });
+  }
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Usuário não autenticado' });
+  }
+  console.log("Carrinho na sessão:", cart);
+
+  try {
+    const response = await axios.post('http://localhost:5000/api/finalize',
+      {
+        cart,
+        address,
+        payment
+      },
+      {
+        headers: {
+          'x-auth-token': token, // Certifique-se de que está passando o token corretamente
+          'Content-Type': 'application/json' // Especifica que está esperando uma resposta em JSON
+        }
+      }
+    );
+
+    console.log(response.status);
+
+    if (response.status) {
+      if (!req.session.cart) {
+        req.session.cart = []; // Inicializa o carrinho, se necessário
+      }    
+      req.session.cart = [];
+      res.status(200).json({ success: true, message: 'Compra finalizada', redirectUrl:'/' });
+    }
+  } catch (error) {
+    console.error('Erro no microserviço:', error.message);
+    res.status(500).json({ success: false, message: 'Erro ao processar a compra' });
+  }
+};
+
 

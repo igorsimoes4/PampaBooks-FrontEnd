@@ -1,61 +1,105 @@
 <%- include('partials/header') %>
     <%- include('partials/navbar') %>
 
-    <main class="container mt-5 mb-5" style="min-height: 70vh;">
-        <h2 class="mb-4">Carrinho de Compras</h2>
+        <main class="container mt-5 mb-5" style="min-height: 70vh;">
+            <h2 class="mb-4">Carrinho de Compras</h2>
 
-        <% if (cart.length > 0) { %>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Produto</th>
-                            <th scope="col">Quantidade</th>
-                            <th scope="col">Preço Unitário</th>
-                            <th scope="col">Subtotal</th>
-                            <th scope="col"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% let total = 0; %>
-                        <% cart.forEach(function(item) { %>
+            <% if (cart.length> 0) { %>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
                             <tr>
-                                <td>
-                                    <img src="<%= item.image %>" alt="Imagem de <%= item.title %>" class="img-fluid"
-                                        style="width: 100px;" />
-                                    <span class="ms-3"><%= item.title %></span>
-                                </td>
-                                <td>
-                                    <input type="number" class="form-control" value="<%= item.quantity %>" min="1"
-                                        style="width: 70px;">
-                                </td>
-                                <td>R$ <%= item.price.toFixed(2) %></td>
-                                <td>R$ <%= (item.price * item.quantity).toFixed(2) %></td>
-                                <td>
-                                    <form method="POST" action="/cart/remove/<%= item.id %>">
-                                        <button class="btn btn-sm btn-danger">Remover</button>
-                                    </form>
-                                </td>
+                                <th scope="col">Produto</th>
+                                <th scope="col">Quantidade</th>
+                                <th scope="col">Preço Unitário</th>
+                                <th scope="col">Subtotal</th>
                             </tr>
-                            <% total += item.price * item.quantity; %>
-                        <% }); %>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="row mt-4">
-                <div class="col-md-6">
-                    <h4>Total: R$ <%= total.toFixed(2) %></h4>
+                        </thead>
+                        <tbody>
+                            <% let total=0; %>
+                                <% cart.forEach(function(item) { %>
+                                    <tr>
+                                        <td><img src="<%= item.image %>" alt="Imagem de <%= item.title %>"
+                                                style="width: 100px;" />
+                                            <span class="ms-3">
+                                                <%= item.title %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <%= item.quantity %>
+                                        </td>
+                                        <td>R$ <%= item.price.toFixed(2) %>
+                                        </td>
+                                        <td>R$ <%= (item.price * item.quantity).toFixed(2) %>
+                                        </td>
+                                    </tr>
+                                    <% total +=item.price * item.quantity; %>
+                                        <% }); %>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="col-md-6 text-end">
-                    <a href="/checkout" class="btn btn-success btn-lg">Finalizar Compra</a>
-                </div>
-            </div>
-        <% } else { %>
-            <div class="alert alert-info">
-                Seu carrinho está vazio. <a href="/">Ver livros disponíveis</a>.
-            </div>
-        <% } %>
-    </main>
 
-    <%- include('partials/footer') %>
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h4>Total: R$ <%= total.toFixed(2) %>
+                        </h4>
+                    </div>
+                    <div class="col-md-6">
+                        <form id="checkoutForm">
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Endereço de Entrega</label>
+                                <input type="text" id="address" class="form-control" placeholder="Digite seu endereço"
+                                    required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="paymentMethod" class="form-label">Método de Pagamento</label>
+                                <select id="paymentMethod" class="form-control">
+                                    <option value="cartao">Cartão de Crédito</option>
+                                    <option value="boleto">Boleto</option>
+                                    <option value="pix">PIX</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Finalizar Compra</button>
+                        </form>
+                    </div>
+                </div>
+                <% } else { %>
+                    <div class="alert alert-info">Seu carrinho está vazio. <a href="/">Ver livros disponíveis</a>.</div>
+                    <% } %>
+        </main>
+
+        <script>
+            document.getElementById('checkoutForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const formData = {
+                    address: document.getElementById('address').value,
+                    payment: document.getElementById('paymentMethod').value
+                };
+
+                await fetch('/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data.success);
+                        console.log(data);
+                        if (data.success) {
+                            localStorage.setItem('toastMessage', JSON.stringify({ message: 'Compra finalizada com sucesso', type: 'success' }));
+                            window.location.href = data.redirectUrl;
+                        } else {
+                            alert(data.message || 'Erro ao finalizar compra');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        alert('Erro ao processar a compra');
+                    });
+            });
+        </script>
+
+        <%- include('partials/footer') %>

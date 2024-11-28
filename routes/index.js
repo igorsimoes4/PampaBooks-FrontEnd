@@ -1,4 +1,5 @@
 var express = require('express');
+const upload = require('../middlewares/uploadMiddleware');
 var router = express.Router();
 
 // Controller
@@ -11,6 +12,7 @@ router.get('/books/:id', frontController.renderBookPage);
 
 router.get('/cart', frontController.renderCartPage);
 router.post('/cart/add', frontController.addToCart);
+router.post('/checkout', frontController.finalizeCheckout);
 
 
 router.get('/login', frontController.renderLoginPage);
@@ -19,11 +21,10 @@ router.post('/logout', frontController.logoutUser);
 router.get('/register', frontController.renderRegistrePage);
 router.post('/register', frontController.Registre);
 
-
 router.get('/painel', frontController.getDashboard);
 router.get('/painel/perfil', frontController.perfil);
 router.get('/painel/config', frontController.config);
 router.get('/painel/bookadd', frontController.renderBookAdd);
-router.post('/painel/bookadd', frontController.bookAdd);
+router.post('/painel/bookadd', upload.single('image'), frontController.bookAdd);
 
 module.exports = router;
