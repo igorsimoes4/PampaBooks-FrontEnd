@@ -1,79 +1,4 @@
 const axios = require('axios');
-const path = require('path');
-const books = [
-  {
-    id: 1,
-    title: 'O Senhor dos Anéis: A Sociedade do Anel',
-    author: 'J.R.R. Tolkien',
-    description: 'A épica jornada de Frodo e seus amigos em busca da destruição do Um Anel.',
-    price: 89.90,
-    image: '/images/book1.jpeg',
-    rating: 5
-  },
-  {
-    id: 2,
-    title: 'Harry Potter e a Pedra Filosofal',
-    author: 'J.K. Rowling',
-    description: 'O primeiro livro da série Harry Potter, onde Harry descobre o mundo da magia.',
-    price: 59.90,
-    image: '/images/book2.jpeg',
-    rating: 4
-  },
-  {
-    id: 3,
-    title: 'O Código Da Vinci',
-    author: 'Dan Brown',
-    description: 'Um suspense envolvente sobre a busca de Robert Langdon por segredos antigos.',
-    price: 49.90,
-    image: '/images/book3.jpeg',
-    rating: 4
-  },
-  {
-    id: 4,
-    title: 'A Menina que Roubava Livros',
-    author: 'Markus Zusak',
-    description: 'A emocionante história de uma jovem garota que encontra consolo nos livros durante a Segunda Guerra Mundial.',
-    price: 39.90,
-    image: '/images/book4.jpeg',
-    rating: 5
-  },
-  {
-    id: 5,
-    title: '1984',
-    author: 'George Orwell',
-    description: 'Uma visão distópica de um mundo controlado por um regime totalitário.',
-    price: 45.00,
-    image: '/images/book5.jpeg',
-    rating: 5
-  },
-  {
-    id: 6,
-    title: 'Dom Quixote',
-    author: 'Miguel de Cervantes',
-    description: 'A famosa obra de Cervantes sobre as aventuras do cavaleiro errante Dom Quixote.',
-    price: 79.90,
-    image: '/images/book6.jpeg',
-    rating: 4
-  },
-  {
-    id: 7,
-    title: 'A Guerra dos Tronos',
-    author: 'George R.R. Martin',
-    description: 'O primeiro livro da série As Crônicas de Gelo e Fogo, que inspirou a série Game of Thrones.',
-    price: 89.90,
-    image: '/images/book7.jpeg',
-    rating: 5
-  },
-  {
-    id: 8,
-    title: 'O Pequeno Príncipe',
-    author: 'Antoine de Saint-Exupéry',
-    description: 'Um dos maiores clássicos da literatura, sobre a história de um pequeno príncipe e suas lições de vida.',
-    price: 29.90,
-    image: '/images/book8.jpeg',
-    rating: 5
-  }
-];
 
 const getUserNameFromToken = async (token) => {
   if (!token) {
@@ -109,7 +34,7 @@ exports.renderHomePage = async (req, res) => {
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
   const toastMessage = req.session.toastMessage;
   const token = req.cookies.token;  // Supondo que o token JWT esteja no cookie
-  const response = await axios.get('http://127.0.0.1:3002/api/books');
+  const response = await axios.get('https://catalog-service-mdg2.onrender.com/api/books');
   const books = response.data.books;
   let userName = await getUserNameFromToken(token);
   req.session.toastMessage = null;
@@ -192,7 +117,7 @@ exports.renderBookPage = async (req, res) => {
 
   try {
     const bookId = req.params.id;
-    const book = await axios.get(`http://127.0.0.1:3002/api/books/${bookId}`);
+    const book = await axios.get(`https://catalog-service-mdg2.onrender.com/api/books/${bookId}`);
 
     // const book = books.find(book => book.id == bookId);
 
@@ -243,7 +168,7 @@ exports.renderCartPage = async (req, res) => {
       const productIds = cart.map(item => item.productId);
 
       // Realizar uma requisição ao microserviço de livros
-      const response = await axios.get(`http://127.0.0.1:3002/api/books/search`, {
+      const response = await axios.get(`https://catalog-service-mdg2.onrender.com/api/books/search`, {
         params: { ids: productIds.join(',') }
       });
 
@@ -386,7 +311,7 @@ exports.getDashboard = async (req, res) => {
 
   if (bookIds.length > 0) {
     try {
-      const response = await axios.get('http://127.0.0.1:3002/api/books/search', {
+      const response = await axios.get('https://catalog-service-mdg2.onrender.com/api/books/search', {
         params: { ids: bookIds.join(',') }
       });
       books = response.data.books;
@@ -455,7 +380,7 @@ exports.bookAdd = async (req, res) => {
     const imagePath = req.file ? `/uploads/${req.file.filename}` : '';
 
     // Enviando os dados para o microserviço de livros
-    const response = await axios.post('http://127.0.0.1:3002/api/books/', {
+    const response = await axios.post('https://catalog-service-mdg2.onrender.com/api/books/', {
       title,
       author,
       description,
@@ -495,7 +420,7 @@ exports.finalizeCheckout = async (req, res) => {
   console.log("Carrinho na sessão:", cart);
 
   try {
-    const response = await axios.post('http://localhost:5000/api/finalize',
+    const response = await axios.post('https://pampabooks-users.onrender.com/api/finalize',
       {
         cart,
         address,
