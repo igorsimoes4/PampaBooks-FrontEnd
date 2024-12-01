@@ -5,7 +5,7 @@
             
             <div class="row">
                 <div class="col-md-4">
-                    <img src="<%= book.image %>" alt="Capa do Livro" class="img-fluid img-fluid-book">
+                    <img src="<%= book.image %>" alt="Capa do Livro" class="img-fluid img-fluid-book"  onerror="this.onerror=null; this.src='/uploads/default.png';">
                 </div>
                 <div class="col-md-8">
                     <h1 class="mb-4 text-center">
@@ -35,4 +35,4 @@
             </div>
         </div>
 
-        <%- include('partials/footer') %>
+<%- include('partials/footer') %>

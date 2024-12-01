@@ -20,7 +20,7 @@
                                 <% cart.forEach(function(item) { %>
                                     <tr>
                                         <td><img src="<%= item.image %>" alt="Imagem de <%= item.title %>"
-                                                style="width: 100px;" />
+                                                style="width: 100px;"  onerror="this.onerror=null; this.src='/uploads/default.png';" />
                                             <span class="ms-3">
                                                 <%= item.title %>
                                             </span>

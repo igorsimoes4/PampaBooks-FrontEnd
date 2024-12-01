@@ -117,7 +117,10 @@ exports.renderBookPage = async (req, res) => {
 
   try {
     const bookId = req.params.id;
-    const book = await axios.get(`https://catalog-service-mdg2.onrender.com/api/books/${bookId}`);
+    const response = await axios.get(`https://catalog-service-mdg2.onrender.com/api/books/${bookId}`);
+
+
+    const book = response.data.book;
 
     // const book = books.find(book => book.id == bookId);
 
