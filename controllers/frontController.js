@@ -463,7 +463,7 @@ exports.searchBooks = async (req, res) => {
   req.session.toastMessage = null;  
 
   try {
-    const response = await axios.post(`http://localhost:3002/api/books/pesquisa`, {
+    const response = await axios.post(`https://catalog-service-mdg2.onrender.com/api/books/pesquisa`, {
       query, // Envie o termo capturado
     });
     const books = response.data.books;
