@@ -27,4 +27,6 @@ router.get('/painel/config', frontController.config);
 router.get('/painel/bookadd', frontController.renderBookAdd);
 router.post('/painel/bookadd', upload.single('image'), frontController.bookAdd);
 
+router.get('/searchBooks', frontController.searchBooks);
+
 module.exports = router;

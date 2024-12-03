@@ -1,40 +1,46 @@
 <%- include('partials/header') %>
     <%- include('partials/navbar') %>
-<main class="container mt-5 mb-5">
-  <h2 class="mb-4">Livros em Destaque</h2>
-  <div class="row">
-    <% books.forEach(function(book) { %>
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
-        <div class="card h-100 shadow-sm">
-          <img src="<%= book.image %>" class="card-img-top book-cover" alt="Imagem de <%= book.title %>" onerror="this.onerror=null; this.src='/uploads/default.png';"/>
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title"><%= book.title %></h5>
-            <p class="text-muted">Autor: <%= book.author %></p>
-            <p class="card-text"><%= book.description %></p>
-            <span class="badge rounded-pill" style="background-color: #ccc; color: black;"><%= book.category %></span>
-
-            <div class="book-rating mb-2 mt-2">
-              <% for(let i = 1; i <= 5; i++) { %>
-                <% if(i <= book.rating) { %>
-                  <i class="bi bi-star-fill text-warning"></i>
-                <% } else { %>
-                  <i class="bi bi-star text-warning"></i>
-                <% } %>
-              <% } %>
-            </div>
-
-            <p class="text-success">R$ <%= book.price.toFixed(2) %></p>
-
-            <div class="mt-auto d-flex justify-content-between align-items-center">
-              <a href="/books/<%= book._id %>" class="btn btn-sm btn-outline-primary">Detalhes</a>
-              <button type="button" class="btn btn-sm btn-success btn-comprar" data-id="<%= book._id %>">Comprar</button>
+    <main class="container mt-5 mb-5">
+      <h2 class="mb-4">Livros em Destaque</h2>
+      <div id="search-results" class="row">
+        <% books.forEach(function(book) { %>
+          <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+            <div class="card h-100 shadow-sm">
+              <!-- Imagem do Livro -->
+              <img src="<%= book.image %>" class="card-img-top book-cover" alt="Imagem de <%= book.title %>" 
+                  onerror="this.onerror=null; this.src='/uploads/default.png';"/>
+              <div class="card-body d-flex flex-column">
+                <!-- Informações do Livro -->
+                <h5 class="card-title"><%= book.title %></h5>
+                <p class="text-muted">Autor: <%= book.author %></p>
+                <p class="card-text"><%= book.description %></p>
+                <span class="badge rounded-pill" style="background-color: #ccc; color: black;"><%= book.category %></span>
+    
+                <!-- Avaliação (Estrelas) -->
+                <div class="book-rating mb-2 mt-2">
+                  <% for(let i = 1; i <= 5; i++) { %>
+                    <% if(i <= book.rating) { %>
+                      <i class="bi bi-star-fill text-warning"></i>
+                    <% } else { %>
+                      <i class="bi bi-star text-warning"></i>
+                    <% } %>
+                  <% } %>
+                </div>
+    
+                <!-- Preço -->
+                <p class="text-success">R$ <%= book.price.toFixed(2) %></p>
+    
+                <!-- Botões -->
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                  <a href="/books/<%= book._id %>" class="btn btn-sm btn-outline-primary">Detalhes</a>
+                  <button type="button" class="btn btn-sm btn-success btn-comprar" data-id="<%= book._id %>">Comprar</button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        <% }); %>
       </div>
-    <% }); %>
-  </div>
-</main>
+    </main>
 
 <script>
 // Função para enviar uma requisição POST para adicionar um produto ao carrinho
@@ -44,7 +50,7 @@
         type: '<%= toastMessage.type %>'
       };
       showToast(window.toastMessage.message, window.toastMessage.type); // Exibe o toast automaticamente
-    <% } %>
+    <% } %>  
 </script>
 
 <%- include('partials/footer') %>

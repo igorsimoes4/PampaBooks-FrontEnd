@@ -1,24 +1,28 @@
 <%- include('partials/header') %>
     <%- include('partials/navbar') %>
 
-        <div class="container container-book mt-4 d-flex pd-2" style="min-height: 80vh; justify-content: center; align-items: center;">
-            
+        <div class="container container-book mt-4 d-flex pd-2"
+            style="min-height: 80vh; justify-content: center; align-items: center;">
+
             <div class="row">
                 <div class="col-md-4">
-                    <img src="<%= book.image %>" alt="Capa do Livro" class="img-fluid img-fluid-book"  onerror="this.onerror=null; this.src='/uploads/default.png';">
+                    <img src="<%= book.image %>" alt="Capa do Livro" class="img-fluid img-fluid-book"
+                        onerror="this.onerror=null; this.src='/uploads/default.png';">
                 </div>
                 <div class="col-md-8">
                     <h1 class="mb-4 text-center">
                         <%= book.title %>
                     </h1>
-                    
+
                     <p><strong>Autor:</strong>
                         <%= book.author %>
                     </p>
                     <p><strong>Descrição:</strong>
                         <%= book.description %>
                     </p>
-                    <span class="badge rounded-pill" style="background-color: #ccc; color: black;"><%= book.category %></span>
+                    <span class="badge rounded-pill" style="background-color: #ccc; color: black;">
+                        <%= book.category %>
+                    </span>
                     <div class="book-rating mb-2 mt-2">
                         <% for(let i=1; i <=5; i++) { %>
                             <% if(i <=book.rating) { %>
@@ -31,10 +35,13 @@
                     <p><strong>Preço:</strong>
                         <%= book.price %>
                     </p>
-                    <button type="button" class="btn btn-sm btn-success btn-comprar" data-id="<%= book._id %>">Comprar</button>
+                    <button type="button" class="btn btn-sm btn-success btn-comprar"
+                        data-id="<%= book._id %>">Comprar</button>
 
                 </div>
             </div>
         </div>
 
-<%- include('partials/footer') %>
+        
+
+        <%- include('partials/footer') %>

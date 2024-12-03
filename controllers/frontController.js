@@ -119,7 +119,6 @@ exports.renderBookPage = async (req, res) => {
     const bookId = req.params.id;
     const response = await axios.get(`https://catalog-service-mdg2.onrender.com/api/books/${bookId}`);
 
-
     const book = response.data.book;
 
     // const book = books.find(book => book.id == bookId);
@@ -451,5 +450,32 @@ exports.finalizeCheckout = async (req, res) => {
     res.status(500).json({ success: false, message: 'Erro ao processar a compra' });
   }
 };
+
+exports.searchBooks = async (req, res) => {
+  const { q: query } = req.query; // Capture o termo de busca da query string
+  console.log('Termo de pesquisa recebido:', query); // Ajustado para usar a variável correta
+
+  const cart = req.session.cart || [];
+  const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const toastMessage = req.session.toastMessage;
+  const token = req.cookies.token;
+  let userName = await getUserNameFromToken(token);
+  req.session.toastMessage = null;  
+
+  try {
+    const response = await axios.post(`http://localhost:3002/api/books/pesquisa`, {
+      query, // Envie o termo capturado
+    });
+    const books = response.data.books;
+    console.log('Livros retornados pelo microserviço:', books);
+
+    res.json({ success: true, books });
+  } catch (error) {
+    console.error('Erro no controller frontend:', error);
+    res.status(500).json({ message: 'Erro ao buscar livros.' });
+  }
+};
+
+
 
 
